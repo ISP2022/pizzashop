@@ -8,7 +8,7 @@ from pizza import Pizza
 # - if no type annotation on the pizza parameter, maybe not
 # - if use type annotation ':Pizza' on the parameter, it should
 
-def print_pizza( pizza ):
+def print_pizza(pizza):
     """
     Print a description of a pizza, along with its price.
     """
@@ -30,9 +30,11 @@ if __name__ == "__main__":
     pizza.addTopping("pinapple")
     print_pizza(pizza)
 
+    # a plain pizza
     pizza2 = Pizza("medium")
     print_pizza(pizza2)
 
+    # pizza with only one topping
     pizza3 = Pizza("large")
     pizza3.addTopping("seafood")
     print_pizza(pizza3)

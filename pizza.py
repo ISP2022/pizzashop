@@ -10,9 +10,9 @@ class Pizza:
         if self.size == 'small':
             price = 120 + 20*len(self.toppings)
         elif self.size == 'medium':
-            price = 200 + 25*len(self.toppings)
+            price = 200 + 20*len(self.toppings)
         elif self.size == 'large':
-            price = 280 + 30*len(self.toppings)
+            price = 280 + 20*len(self.toppings)
         else:
             raise ValueError("Unknown pizza size "+self.size)
         return price

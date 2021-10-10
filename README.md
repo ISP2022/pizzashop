@@ -1,24 +1,23 @@
 ## Refactoring Practice
 
-Make some improvements in the Pizza class and pizzashop file by applying refactorings. 
+Make some improvements in the Pizza class and pizzashop file by refactoring. 
 
 Goals to achieve for the code are:
 
 1. Replace string literals with named constants.
-    - refactor strings but don't bother adding constants for prices, because we have an better refactoring for prices.
-2. Use consistent naming - rename methods.
-3. Make code more reusable by moving misplaced code to a better place (extract method and move method).
+2. Rename amethods to use the Python naming convention.
+3. Move misplaced code to a better place (Extract Method and then Move Method). This improves encapsulation and makes the code more reusable.
 4. Replace "switch" (`if` ... `elif` ... `elif`) with object behavior.
 
 ### Background
 
-Pizza describes a pizza with a size and optional toppings.  The price depends on size and number of toppings.  For example, large pizza is 280 Baht plus 30 Baht per topping.
+Pizza describes a pizza with a size and optional toppings.  The price depends on size and number of toppings.  For example, large pizza is 280 Baht plus 20 Baht per topping.
 ```python
 pizza = Pizza('large')
 pizza.addTopping("mushroom")
 pizza.addtopping("pineapple")
 print("The price is", pizza.getPrice())
-'The price is 340'
+'The price is 320'
 ```
 There are 2 files to start with:
 ```
@@ -28,40 +27,52 @@ pizzashop.py - create some pizzas and print them. Use to verify code.
 
 ## 1. Replace String Literals with Named Constants
 
+> Use Named Constants instead of Literals in Code.
+
 In the Pizza class replace 'small', 'medium', and 'large" with named constants.  Use your IDE's refactoring feature, not manual find and replace.
 
 1. Select 'small' in Pizza.
-   - VSCode: right click - Extract variable.
-   - Pycharm: right click - Refactor - Extract - Constant
-   - Pydev: Refactoring - Extract local variable. 
-2. In my tests, none of the IDE did what I want. Edit your code to make them class-level constants:
-    ```python
-    class Pizza:
-        SMALL = 'small'
-        MEDIUM = 'medium'
-        LARGE = 'large'
-    
-    # in "pizzashop":
-    pizza = Pizza(Pizza.SMALL)
-    ```
-3. When you are done, the strings 'small', 'medium', 'large' should only appear **once** in the code.
-4. Did your IDE also change the sizes in `pizzashop.py`?  If not, edit pizzashop.py and change sizes to references (`Pizza.SMALL`)
-    ```python
-    if __name__ == "__main__":
-        pizza = Pizza(Pizza.SMALL)
-        ...
-        pizza2 = Pizza(Pizza.MEDIUM)
-    ```
-5. Run the code. Verify the results are the same.
+   - VSCode: right click -> Extract variable.
+   - Pycharm: right click -> Refactor -> Extract Constant
+   - Pydev: Refactoring -> Extract local variable. 
 
-## 2. Rename Symbols
+2. Do the same thing for "medium" and "large".
+
+3. In my tests, none of the IDE did exactly what I want.  The constants SMALL, MEDIUM, and LARGE are top-level variables in `pizza.py`, but not part of the Pizza class.    
+   ```python
+   SMALL = 'small'
+   MEDIUM = 'medium'
+   LARGE = 'large'
+
+   class Pizza:
+       ...
+   ```
+   We would prefer to *encapsulate* the sizes inside the Pizza class, e.g. `Pizza.SMALL` (I'm disappointed none of the IDE did this). However, we will eventually get rid of these constants, so *leave the constants as top-level variables* for now.
+
+5. When you are done, the strings 'small', 'medium', 'large' should only appear **once** in the code (in the Pizza class).
+
+6. Did the IDE also change the sizes in `pizzashop.py`?  If not, edit pizzashop.py and change sizes to references (`Pizza.SMALL`)
+    ```python
+    from pizza import *
+
+    if __name__ == "__main__":
+        pizza = Pizza(SMALL)
+        ...
+        pizza2 = Pizza(MEDIUM)
+        ...
+        pizza3 = Pizza(LARGE)
+    ```    
+    
+7. Run the code. Verify the results are the same.
+
+## 2. Rename Method
 
 1. `getPrice` is not a Python-style name.  Use refactoring to rename it to `get_price`.
     - VSCode: right-click on method name, choose "Rename Symbol"
     - Pycharm: right-click, Refactor -> Rename
     - Pydev: "Refactoring" menu -> Rename
 
-2. Did the IDE rename `getPrice` in `print_pizza()`?
+2. Did the IDE **also** rename `getPrice` in `print_pizza()`?
     - VSCode: no
     - Pycharm: yes. Notification of dynamic code in preview.
     - Pydev: yes (lucky guess)
@@ -69,14 +80,12 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
 
 3. Undo the refactoring, so you have original `getPrice`.
 
-4. Add a type annotation: `print_pizza(pizza: Pizza)`.
-    - Then do Refactoring->Rename again.
-    - Any difference?
-    ```python
-    def print_pizza( pizza: Pizza ):
-        ...
-        print("Price:", pizza.get_price())
-    ```
+4. Add a type annotation in pizzashop.py so the IDE knows that parameter is *really* a Pizza: 
+   ```python
+   def print_pizza(pizza: Pizza):
+   ```
+    - Then do Refactoring -> Rename (in pizza.py) again.
+    - Does the IDE change `getPrice` to `get_price` in pizzashop.py also?
 
 5. Rename `addTopping` in Pizza to `add_topping`.  Did the IDE also rename it in pizzashop?
     - If not, rename it manually.
@@ -84,31 +93,33 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
 
 6. Run the code. Verify the code works the same.
 
+
 ## 3. Extract Method and Move Method
 
-`print_pizza` creates a string (`description`) to describe the pizza.  That is a poor location for this because:
-- the description could be needed elsewhere in the application
-- it relies on info about a Pizza that only the Pizza has
+> Perform refactorings in small steps. In this case, we extract a method first, then move it to a better place.
 
-So, it should be the Pizza's job to describe itself.  This is also known as the *Information Expert* principle.
+`print_pizza` creates a string `description` to describe the pizza.  That is a poor location for this because:
+1. the description could be needed elsewhere in the application
+2. it relies on info about a Pizza that only the Pizza knows.
+
+Therefore, it should be the Pizza's job to describe itself.  This is also known as the *Information Expert* principle.
 
 Try an *Extract Method* refactoring, followed by *Move Method*.
 
-1. Select all statements in `print_pizza` that create the description **and** the preceding comments:
+1. **Select** these statements in `print_pizza` that create the description:
    ```python
-    # create printable description of the pizza such as
-    # "small pizza with muschroom" or "small plain pizza"
     description = pizza.size
     if pizza.toppings:
         description += " pizza with "+ ", ".join(pizza.toppings)
     else:
         description += " plain pizza"
     ```
-2. Refactor:
-    - VS Code: right click -> 'Extract Method'. Enter "describe" as method name.
+2. Refactor (**Extract Method**):
+    - VS Code: right click -> 'Extract Method'. Enter "describe" as method name. (This worked in 2020, but in current VS Code it does not.)
     - PyCharm: right click -> Refactor -> Extract -> Method
-    - PyCharm correctly suggests that "pizza" should be parameter, but incorrectly does not return anything. Fix it.
-    - PyDev: Refactoring menu -> Extract method.  PyDev asks you if pizza should a parameter (correct), but incorrectly does not return anything.  Fix it.
+    - PyCharm correctly suggests that "pizza" should be parameter, and it returns the description. (correct!)
+    - PyDev: Refactoring menu -> Extract method.  PyDev asks you if pizza should a parameter (correct), but the new method does not return anything.  Fix it.
+    - All IDE: after refactoring, move the two comment lines from `print_pizza` to `describe` as shown here:
     ```python
     def describe(pizza):
         # create printable description of the pizza such as
@@ -120,7 +131,15 @@ Try an *Extract Method* refactoring, followed by *Move Method*.
             description += " plain pizza"
         return description
     ```
-3. **Move Method:** We want the code for description to be in the Pizza class, so it can be used anywhere in the code.  There isn't an automatic refactoring for this, so do it yourself.  Cut the `describe(pizza)` method and paste it into pizza.py as the `__str__(self)` method. You should end up with this:
+    Forgetting to move comments is a common problem in refactoring. Be careful.
+
+3. **Move Method:** The code for `describe()` should be a method in the Pizza class, so it can be used anywhere that we have a pizza.
+   - None of the 3 IDE do this correctly, so do it manually.
+   - Select the `describe(pizza)` method in pizzashop.py and CUT it.
+   - Inside the Pizza class (pizza.py), PASTE the method.
+   - Change the parameter name from "pizza" to "self" (Refactor -> Rename).
+   
+4. **Rename Method:** In `pizza.py` rename `describe` to `__str__(self)` method. You should end up with this:
     ```python
     # In Pizza class:
     def __str__(self):
@@ -140,19 +159,21 @@ Try an *Extract Method* refactoring, followed by *Move Method*.
         print(f"A {descripton}")
         print("Price:", pizza.get_price())
     ```
-5. **Eliminate Temp Variable** The `description` variable isn't necessary in such simple code, so refactor to eliminate it:
+5. **Eliminate Temp Variable** The code is now so simple that we don't need the `description` variable.  Eliminate it:
     ```python
     def print_pizza(pizza)
         print(f"A {str(pizza)}")
+        print("Price:", pizza.get_price())
     ```
-**Test:** Run the pizzashop code. Verify the results are the same.
+6. **Test.** Run the pizzashop code. Verify the results are the same.
+
 
 ## 4. Replace 'switch' with Call to Object Method
 
-This is the most complex refactoring, but also yields big gains in code quality:
-* code is simpler
-* enables us to validate the pizza size in constructor
-* prices and sizes can be changed or added without changing the Pizza class
+This is the most complex refactoring, but it gives big gains in code quality:
+- code is simpler
+- enables us to validate the pizza size in constructor
+- prices and sizes can be changed or added without changing the Pizza class
 
 The `get_price` method has a block like this:
 ```python
@@ -163,92 +184,50 @@ elif self.size == Pizza.MEDIUM:
 elif self.size == Pizza.LARGE:
     price = ...
 ```
-The pizza has to know pricing rules for each size, which makes the code complex.
-An O-O approach would be to let the pizza sizes compute their own price.
-Therefore, define a new datatype for pizza size with a `price()` method.
+The pizza has to know the pricing rule for each size, which makes the code complex.
+An O-O approach is to let the pizza sizes compute their own price.
+Therefore, we will define a new datatype (class) for pizza size.
 
 Python has an `Enum` type for this.
 An "enum" is a type with a fixed set of values, which are static instances of the enum type.  Each enum member has a **name** and a **value**.
 
-To define an enum for pizza sizes:
-```python
-from enum import Enum
+1. In `pizza.py` replace the named constants LARGE, MEDIUM, and SMALL with an Enum named `PizzaSize`:
+   ```python
+   from enum import Enum
 
-class PizzaSize(Enum):
-    # Enum members written as: name = value
-    small = 120
-    medium = 200
-    large = 280
+   class PizzaSize(Enum):
+       # Enum members written as: name = value
+       small = 120
+       medium = 200
+       large = 280
 
-    def __str__(self):
-        return self.name
-```
-Does this work?  Write some short code to try it.
-```python
-def test_pizza_sizes():
-    for size in PizzaSize:
-        print(size.name, "pizza price:",size.value)
-
-if __name__ == "__main__":
-    test_pizza_sizes()
-```
-It should print the pizza prices.  We *could* define a `price()` method:
-```python
-    def price(self):
-        return self.value    # value of the enum member
-```
-But what about the price of toppings?
-
-We need the number of toppings to compute pizza price,
-so add a parameter to `price()`.  This avoids *coupling* it to the toppings.
-```python
-    def price(self,ntoppings=0):
-        return self.value + ???*ntoppings
-```
-The per-topping price depends on size, so we need separate topping prices 
-for each size.
-
-Here are 2 solutions.  They both use the fact that the **value** of an enum member can be **anything**, not just a number or string.
-
-1. Use a dict to specify base-price and topping price:
-    ```python
-    class PizzaSize(Enum):
-        small = {'base': 120, 'topping': 20}
-        medium = {'base': 180, 'topping': 25}
-        large = {'base': 280, 'topping': 30}
-        # in price() method use:
-        # self.value['base'] + self.value['topping']*ntopping
-    ```
-2. Use a lambda to compute price.  Assigning lambda directly to enum members doesn't work as expected, so put them in a dict.
-    ```python
-    class PizzaSize(Enum):
-        small = {'price': lambda ntopping: 120 + 20*ntopping}
-        ...
-        
-        # self.value['price'] is a lambda (a function)
-        # so you can invoke it using:
-        # price = self.value['price'](ntopping)
-    ```
-
-Modify `pizzaSize.price(ntopping)` so it returns the pizza price with toppings.    
-Use whichever solution you find **most easy to read**.
- 
-**Test** the code.
-
-Then modify the Pizza class. Change `size` to use the PizzaSize enum and **delegate** pricing to it.
-```python
-# in Pizza class
+       def __str__(self):
+           return self.name
+   ```
+2. Write a short script (in pizza.py or another file) to test the enum:
+   ```python
+   if __name__ == "__main__":
+       # test the PizzaSize enum
+       for size in PizzaSize:
+           print(size.name, "pizza has price", size.value)
+   ```
+   This should print the pizza prices. But the code `size.value` doesn't convey it's meaning: it should be the price. but the **meaning** of `size.value` is **not clear**.  Add a `price` property to PizzaSize:
+   ```python
+   # PizzaSize
+       @property
+       def price(self):
+           return self.value
+   ```
+3. In Pizza.get_price(), eliminate the `if size == SMALL: elif ...` It is no longer needed.  The Pizza sizes know their own price.
+   ```python
    def get_price(self):
-       return self.size.price( len(toppings) )
+       """Price of a pizza depends on size and number of toppings"""
+       price = self.size.price + 20*len(self.toppings)
+   ```
+4. In `pizzashop.py` replace the constants SMALL, MEDIUM, and LARGE with `PizzaSize.small`, `PizzaSize.medium`, etc.
 
-# In the pizzashop file:
-pizza = Pizza( PizzaSize.small )
-etc.
-```
-No "`if ... elif ... elif ...`"!
+5. Run the code. It should work as before. If not, fix any
 
-
-**Test** the code by running pizzashop. Verify results are same as before.
 
 ### Extensibility
 
@@ -256,7 +235,7 @@ Can you add a new pizza size *without* changing the Pizza class?
 ```python
 class PizzaSize(Enum):
     ...
-    jumbo: {"base": 500, "topping": 50}
+    jumbo = 400
 
 # and in pizzashop.__main__:
 pizza = Pizza(PizzaSize.jumbo)
@@ -264,9 +243,9 @@ pizza = Pizza(PizzaSize.jumbo)
 
 ### Type Safety
 
-Since we eliminated the use of strings for sizes, we reduce the chance for error in creating a pizza, such as `Pizza("LARGE")`.
+Using an Enum instead of Strings for named values reduces the chance for error in creating a pizza, such as `Pizza("LARGE")`.
 
-For better type safety, you can add an annotation and type check in the constructor:
+For type safety, you can add an annotation and a type check in the Pizza constructor:
 ```python
     def __init__(self, size: PizzaSize):
         if not isinstance(size, PizzaSize):
