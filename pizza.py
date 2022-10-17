@@ -22,3 +22,22 @@ class Pizza:
         if topping not in self.toppings:
             self.toppings.append(topping)
 
+
+class Salad:
+    """Mixed vegetable salad, in various sizes."""
+
+    def __init__(self, size):
+        """Salad can be small or large."""
+        if size not in ('small','large'):
+            raise ValueError("Size must be small or large")
+        self.size = size
+
+    def getPrice(self):
+        """Price of a salad depends only on size."""
+        if self.size == 'small':
+            price = 25
+        elif self.size == 'large':
+            price = 40
+        else:
+            raise ValueError("Unknown salad size "+self.size)
+        return price
