@@ -24,11 +24,11 @@ class Pizza:
 
 
 class Salad:
-    """Mixed vegetable salad, in various sizes."""
+    """Mixed vegetable salad, in two sizes."""
 
     def __init__(self, size):
         """Salad can be small or large."""
-        if size not in ('small','large'):
+        if size not in ('small', 'large'):
             raise ValueError("Size must be small or large")
         self.size = size
 

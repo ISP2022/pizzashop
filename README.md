@@ -32,8 +32,8 @@ pizzashop.py - create some pizzas and print them. Use to verify code.
 In the Pizza class replace 'small', 'medium', and 'large" with named constants.  Use your IDE's refactoring feature, not manual find and replace.
 
 1. Select 'small' in Pizza.
-   - VSCode: right click -> Extract variable.
-   - Pycharm: right click -> Refactor -> Extract Constant
+   - VSCode: right click -> Refactor -> Extract variable.
+   - Pycharm: right click -> Refactor -> Introduce Constant. **Preview** changes.
    - Pydev: Refactoring -> Extract local variable. 
 
 2. Do the same thing for "medium" and "large".
@@ -47,20 +47,18 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
    class Pizza:
        ...
    ```
-   We would prefer to *encapsulate* the sizes inside the Pizza class, e.g. `Pizza.SMALL` (I'm disappointed none of the IDE did this). However, we will eventually get rid of these constants, so *leave the constants as top-level variables* for now.
+   I would prefer to *encapsulate* the sizes inside the Pizza class, e.g. `Pizza.SMALL`. However, we will eventually replace these constants with an enum, so *leave the constants as top-level variables* for now.
 
-5. When you are done, the strings 'small', 'medium', 'large' should only appear **once** in the code (in the Pizza class).
-
-6. Did the IDE also change the sizes in `pizzashop.py`?  If not, edit pizzashop.py and change sizes to references (`Pizza.SMALL`)
+5. Did the IDE also change the sizes in `pizzashop.py`?  If not, edit pizzashop.py and change sizes to references (`SMALL`)
     ```python
     from pizza import *
 
     if __name__ == "__main__":
-        pizza = Pizza(SMALL)
+        pizza = make_pizza(SMALL)
         ...
         pizza2 = Pizza(MEDIUM)
         ...
-        pizza3 = Pizza(LARGE)
+        pizza3 = make_pizza(LARGE)
     ```    
     
 7. Run the code. Verify the results are the same.
@@ -69,7 +67,7 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
 
 1. `getPrice` is not a Python-style name.  Use refactoring to rename it to `get_price`.
     - VSCode: right-click on method name, choose "Rename Symbol"
-    - Pycharm: right-click, Refactor -> Rename
+    - Pycharm: right-click, Refactor -> Rename, **Preview** changes.
     - Pydev: "Refactoring" menu -> Rename
 
 2. Did the IDE **also** rename `getPrice` in `order_pizza()`?
@@ -84,8 +82,9 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
    ```python
    def order_pizza(pizza: Pizza):
    ```
-    - Then do Refactoring -> Rename (in pizza.py) again.
-    - Does the IDE change `getPrice` to `get_price` in pizzashop.py also?
+    - Save the change in pizzashop.py
+    - Then, in `pizza.py` do Refactoring -> Rename again.
+    - Does the IDE also change `getPrice` to `get_price` in pizzashop.py?
 
 5. Rename `addTopping` in Pizza to `add_topping`.  Did the IDE also rename it in pizzashop?
     - If not, rename it manually.
@@ -96,7 +95,8 @@ In the Pizza class replace 'small', 'medium', and 'large" with named constants. 
 
 ## 3. Extract Method and Move Method
 
-> Perform refactorings in small steps. In this case, we extract a method first, then move it to a better place.
+> Perform refactorings in small steps. 
+> In this case, we extract a method first, then move it to a better place.
 
 `order_pizza` creates a string `description` to describe the pizza.  That is a poor location for this because:
 1. the description could be needed elsewhere in the application
@@ -134,7 +134,8 @@ Try an *Extract Method* refactoring, followed by *Move Method*.
     Forgetting to move comments is a common problem in refactoring. Be careful.
 
 3. **Move Method:** The code for `describe()` should be a method in the Pizza class, so it can be used anywhere that we have a pizza.
-   - None of the 3 IDE do this correctly, so do it manually.
+   - Select the method. Does the IDE "Refactoring" menu have a "Move Method" refactoring?
+   - None of the 3 IDE do this correctly (for me), so do it manually.
    - Select the `describe(pizza)` method in pizzashop.py and CUT it.
    - Inside the Pizza class (pizza.py), PASTE the method.
    - Change the parameter name from "pizza" to "self" (Refactor -> Rename).
@@ -149,7 +150,7 @@ Try an *Extract Method* refactoring, followed by *Move Method*.
         if self.toppings:
             description += " pizza with "+ ", ".join(self.toppings)
         else:
-            description += " plain pizza"
+            description += " plain cheese pizza"
         return description
     ```
 4. Back in `pizzashop.py`, modify the `order_pizza` to get the description from Pizza:

@@ -1,10 +1,11 @@
-from pizza import Pizza, Salad
+from pizza import Pizza
 
-# This function shows a limitation on tool-assisted
+# This example shows the limitations on tool-assisted
 # refactoring in a dynamic language like Python.
 #
 # When you rename the Pizza getPrice method to get_price,
 # does it rename the method here?
+#
 # - if no type hint on the pizza parameter, maybe not
 # - if you use type hint ':Pizza' on the parameter, it should
 
@@ -42,9 +43,9 @@ if __name__ == "__main__":
     order_pizza(pizza)
 
     # a plain medium pizza
-    pizza2 = make_pizza("medium")
+    pizza2 = Pizza("medium")
     order_pizza(pizza2)
 
-    # large pizza with only one topping
+    # large pizza with one topping
     pizza3 = make_pizza("large", "seafood")
     order_pizza(pizza3)
